@@ -1,10 +1,10 @@
 import React from "react";
-import { Container, Row } from "react-bootstrap";
+import { Row } from "react-bootstrap";
 
 export const Header = () => {
   return (
     <Row m="1">
-      <h1>Countries </h1>
+      <h1 className="padding-horizontal-off">Countries </h1>
     </Row>
   );
 };
