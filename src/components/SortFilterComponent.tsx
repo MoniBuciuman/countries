@@ -4,15 +4,13 @@ import { SortDirection } from "../const";
 
 interface SortFilterComponentProps {
   onSort: (sosortDirectionrt: SortDirection) => void;
-  onFilterByAreaSize: (country: string) => void;
-  onFilterByRegion: (region: string) => void;
+  onFilter: (region: string, country: string) => void;
   onReset: () => void;
 }
 
 export const SortFilterComponent: React.FC<SortFilterComponentProps> = ({
   onSort,
-  onFilterByAreaSize,
-  onFilterByRegion,
+  onFilter,
   onReset,
 }) => {
   const [sortDirection, setSortDirection] = useState(SortDirection.AtoZ);
@@ -29,20 +27,8 @@ export const SortFilterComponent: React.FC<SortFilterComponentProps> = ({
     onSort(latestSortDirection);
   };
 
-  const handleFilterByArea = () => {
-    onFilterByAreaSize(country);
-  };
-
-  const handleArea = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCountry(event.target.value);
-  };
-
-  const handleRegion = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRegion(event.target.value);
-  };
-
-  const handleFilterByRegion = () => {
-    onFilterByRegion(region);
+  const handleFilter = () => {
+    onFilter(region, country);
   };
 
   const handleReset = () => {
@@ -51,9 +37,27 @@ export const SortFilterComponent: React.FC<SortFilterComponentProps> = ({
     setRegion("");
   };
 
+  const onChangeArea = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCountry(event.target.value);
+  };
+
+  const onChangeRegion = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRegion(event.target.value);
+  };
+
   return (
     <Row className="mb-2">
       <Col sm={10}>
+        <Row>
+          <InputGroup className="mb-1">
+            <InputGroup.Text id="region">Filter by region</InputGroup.Text>
+            <Form.Control
+              placeholder="ex: Oceania"
+              value={region}
+              onChange={onChangeRegion}
+            />
+          </InputGroup>
+        </Row>
         <Row>
           <InputGroup className="mb-1">
             <InputGroup.Text id="countryToFilterBy">
@@ -62,34 +66,13 @@ export const SortFilterComponent: React.FC<SortFilterComponentProps> = ({
             <Form.Control
               placeholder="ex: Lithuania"
               value={country}
-              onChange={handleArea}
+              onChange={onChangeArea}
             />
-            <Button
-              variant="outline-secondary"
-              id="countryToFilterByBtn"
-              onClick={handleFilterByArea}
-            >
-              Filter
-            </Button>
           </InputGroup>
         </Row>
-        <Row>
-          <InputGroup className="mb-1">
-            <InputGroup.Text id="region">Filter by region</InputGroup.Text>
-            <Form.Control
-              placeholder="ex: Oceania"
-              value={region}
-              onChange={handleRegion}
-            />
-            <Button
-              variant="outline-secondary"
-              id="regionBtn"
-              onClick={handleFilterByRegion}
-            >
-              Filter
-            </Button>
-          </InputGroup>
-        </Row>
+        <Button variant="success" className="mb-1 me-2" onClick={handleFilter}>
+          Filter
+        </Button>
         <Button variant="success" className="mb-1" onClick={handleReset}>
           Reset
         </Button>

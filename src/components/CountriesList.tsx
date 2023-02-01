@@ -8,87 +8,65 @@ import { SortDirection } from "../const";
 
 export const CountriesList = () => {
   const [countries, setCountries] = useState<Array<CountryType>>([]);
-  const [parsedCountries, setParsedCountries] = useState<Array<CountryType>>(
-    []
-  );
+  const [filteredCountries, setFilteredCountries] = useState<
+    Array<CountryType>
+  >([]);
 
   useEffect(() => {
     fetchCountries((countries: any[]) => {
       setCountries(countries);
+      setFilteredCountries(countries);
     });
   }, []);
 
-  useEffect(() => {
-    setParsedCountries(countries);
-  }, [countries]);
-
   const onSort = (sortDirection: SortDirection) => {
-    const sortedCountries = [...parsedCountries].sort((a, b) => {
-      if (a.name < b.name) {
-        if (sortDirection === SortDirection.AtoZ) {
-          return 1;
-        } else {
-          return -1;
-        }
-      }
-      if (a.name > b.name) {
-        if (sortDirection === SortDirection.AtoZ) {
-          return -1;
-        } else {
-          return 1;
-        }
-      }
+    let collator = new Intl.Collator();
 
-      return 0;
+    const sortedCountries = [...filteredCountries].sort((a, b) => {
+      return sortDirection === SortDirection.AtoZ
+        ? collator.compare(a.name, b.name)
+        : -collator.compare(a.name, b.name);
     });
 
-    setParsedCountries(sortedCountries);
+    setFilteredCountries(sortedCountries);
   };
 
-  const onFilterByAreaSize = (countryName: string) => {
-    const countryArea = countries.find(
-      (country) => country.name === countryName
-    )?.area;
-    console.log(countryArea);
+  const onFilter = (searchedRegion: string, searchedCountry: string) => {
+    let filteredCountries = [...countries];
 
-    let filteredCountriesByAreaSize = [];
-    if (countryArea !== undefined && countryArea !== null) {
-      filteredCountriesByAreaSize = [...countries].filter(
-        (country) =>
-          country.area !== undefined &&
-          country.area !== null &&
-          country.area < countryArea
+    if (searchedRegion) {
+      filteredCountries = filteredCountries.filter(
+        (country) => country.region === searchedRegion
       );
-    } else {
-      filteredCountriesByAreaSize = [...countries];
     }
-    console.log(filteredCountriesByAreaSize);
 
-    setParsedCountries(filteredCountriesByAreaSize);
-  };
+    if (searchedCountry) {
+      const countryArea = countries.find(
+        (country) => country.name === searchedCountry
+      )?.area;
 
-  const onFilterByRegion = (region: string) => {
-    const filteredCountriesByRegion = [...countries].filter(
-      (country) => country.region === region
-    );
-    setParsedCountries(filteredCountriesByRegion);
+      filteredCountries = filteredCountries.filter(
+        (country) => (country?.area ?? 0) < (countryArea ?? 0)
+      );
+    }
+
+    setFilteredCountries(filteredCountries);
   };
 
   const onReset = () => {
-    setParsedCountries(countries);
+    setFilteredCountries(countries);
   };
 
   return (
     <>
       <SortFilterComponent
         onSort={onSort}
-        onFilterByAreaSize={onFilterByAreaSize}
-        onFilterByRegion={onFilterByRegion}
+        onFilter={onFilter}
         onReset={onReset}
       />
       <ListGroup as="ol">
-        {parsedCountries
-          ? parsedCountries.map((country) => {
+        {filteredCountries
+          ? filteredCountries.map((country) => {
               return (
                 <ListGroup.Item
                   as="li"
